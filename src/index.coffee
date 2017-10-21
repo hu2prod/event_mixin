@@ -73,9 +73,10 @@ window.event_mixin = (_t)->
     return
 
     
-class @Event_mixin
+class window.Event_mixin
   event_mixin @
 
   constructor : ()->
     event_mixin_constructor @
 
+@Event_mixin = window.Event_mixin
