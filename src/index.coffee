@@ -1,4 +1,4 @@
-require 'fy'
+require "fy"
 window = global
 window.event_mixin_constructor = (_t)->
   _t.$event_hash = {}
@@ -7,6 +7,7 @@ window.event_mixin_constructor = (_t)->
       continue if k == "delete" # т.к. нормально не сотрет
       _t.$event_hash[k].clear()
     return
+  return
 
 window.event_mixin = (_t)->
   _t.prototype.$delete_state = false
@@ -15,9 +16,9 @@ window.event_mixin = (_t)->
     @dispatch "delete"
     return
   _t.prototype.once = (event_name, cb)->
-    need_remove = ()=>
+    need_remove = (event)=>
       @off event_name, need_remove
-      cb()
+      cb event
       return
     @on event_name, need_remove
     return

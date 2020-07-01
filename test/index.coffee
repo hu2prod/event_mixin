@@ -1,9 +1,9 @@
-assert = require 'assert'
+assert = require "assert"
 
-mod = require '../src/index.coffee'
+mod = require "../src/index.coffee"
 
-describe 'index section', ()->
-  it 'mixin constructor', ()->
+describe "index section", ()->
+  it "mixin constructor", ()->
     class A
       event_mixin @
       constructor:()->
@@ -11,30 +11,34 @@ describe 'index section', ()->
     new A
     return
   
-  it 'mixin class global', ()->
+  it "mixin class global", ()->
     new Event_mixin
     return
   
-  it 'mixin class exports', ()->
+  it "mixin class exports", ()->
     new mod.Event_mixin
     return
   
-  describe 'on', ()->
-    it 'on dispatch', ()->
+  describe "on", ()->
+    it "on dispatch", ()->
       class A
         event_mixin @
         constructor:()->
           event_mixin_constructor @
       a = new A
       counter = 0
-      a.on 'ev1', ()->counter++
-      a.dispatch 'ev1'
-      assert.equal counter, 1
-      a.dispatch 'ev2'
-      assert.equal counter, 1
+      found_event = null
+      a.on "ev1", (event)->
+        found_event = event
+        counter++
+      a.dispatch "ev1", "hello"
+      assert.strictEqual found_event, "hello"
+      assert.strictEqual counter, 1
+      a.dispatch "ev2"
+      assert.strictEqual counter, 1
       return
     
-    it 'on multi dispatch', ()->
+    it "on multi dispatch", ()->
       class A
         event_mixin @
         constructor:()->
@@ -42,56 +46,56 @@ describe 'index section', ()->
       a = new A
       counter = 0
       fn = ()->counter++
-      a.on 'ev1', fn
-      a.on 'ev1', fn
-      a.dispatch 'ev1'
-      assert.equal counter, 2
+      a.on "ev1", fn
+      a.on "ev1", fn
+      a.dispatch "ev1"
+      assert.strictEqual counter, 2
       return
     
-    it 'repeat on dispatch', ()->
+    it "repeat on dispatch", ()->
       class A
         event_mixin @
         constructor:()->
           event_mixin_constructor @
       a = new A
       counter = 0
-      a.on 'ev1', ()->counter++
-      a.dispatch 'ev1'
-      a.dispatch 'ev1'
-      assert.equal counter, 2
+      a.on "ev1", ()->counter++
+      a.dispatch "ev1"
+      a.dispatch "ev1"
+      assert.strictEqual counter, 2
       return
     
-    it 'on array', ()->
+    it "on array", ()->
       class A
         event_mixin @
         constructor:()->
           event_mixin_constructor @
       a = new A
       counter = 0
-      a.on ['ev1', 'ev2'], ()->counter++
-      a.dispatch 'ev1'
-      assert.equal counter, 1
-      a.dispatch 'ev1'
-      assert.equal counter, 2
-      a.dispatch 'ev2'
-      assert.equal counter, 3
-      a.dispatch 'ev3'
-      assert.equal counter, 3
+      a.on ["ev1", "ev2"], ()->counter++
+      a.dispatch "ev1"
+      assert.strictEqual counter, 1
+      a.dispatch "ev1"
+      assert.strictEqual counter, 2
+      a.dispatch "ev2"
+      assert.strictEqual counter, 3
+      a.dispatch "ev3"
+      assert.strictEqual counter, 3
       return
     
-    it 'on throw', ()->
+    it "on throw", ()->
       class A
         event_mixin @
         constructor:()->
           event_mixin_constructor @
       a = new A
       counter = 0
-      a.on 'ev1', ()->throw new Error "WTF"
-      a.dispatch 'ev1'
+      a.on "ev1", ()->throw new Error "WTF"
+      a.dispatch "ev1"
       return
   
-  describe 'ensure_on', ()->
-    it 'ensure_on multi dispatch', ()->
+  describe "ensure_on", ()->
+    it "ensure_on multi dispatch", ()->
       class A
         event_mixin @
         constructor:()->
@@ -99,13 +103,13 @@ describe 'index section', ()->
       a = new A
       counter = 0
       fn = ()->counter++
-      a.ensure_on 'ev1', fn
-      a.ensure_on 'ev1', fn
-      a.dispatch 'ev1'
-      assert.equal counter, 1
+      a.ensure_on "ev1", fn
+      a.ensure_on "ev1", fn
+      a.dispatch "ev1"
+      assert.strictEqual counter, 1
       return
     
-    it 'ensure_on array', ()->
+    it "ensure_on array", ()->
       class A
         event_mixin @
         constructor:()->
@@ -113,13 +117,13 @@ describe 'index section', ()->
       a = new A
       counter = 0
       fn = ()->counter++
-      a.ensure_on ['ev1','ev2'], fn
-      a.dispatch 'ev1'
-      a.dispatch 'ev2'
-      assert.equal counter, 2
+      a.ensure_on ["ev1","ev2"], fn
+      a.dispatch "ev1"
+      a.dispatch "ev2"
+      assert.strictEqual counter, 2
       return
     
-    it 'ensure_on array2', ()->
+    it "ensure_on array2", ()->
       class A
         event_mixin @
         constructor:()->
@@ -127,91 +131,95 @@ describe 'index section', ()->
       a = new A
       counter = 0
       fn = ()->counter++
-      a.ensure_on ['ev1','ev2'], fn
-      a.ensure_on ['ev1','ev2'], fn
-      a.dispatch 'ev1'
-      a.dispatch 'ev2'
-      assert.equal counter, 2
+      a.ensure_on ["ev1","ev2"], fn
+      a.ensure_on ["ev1","ev2"], fn
+      a.dispatch "ev1"
+      a.dispatch "ev2"
+      assert.strictEqual counter, 2
       return
   
-  describe 'off', ()->
-    it 'off dispatch', ()->
+  describe "off", ()->
+    it "off dispatch", ()->
       class A
         event_mixin @
         constructor:()->
           event_mixin_constructor @
       a = new A
       counter = 0
-      a.on 'ev1', fn = ()->counter++
-      a.off 'ev1', fn
-      a.dispatch 'ev1'
-      assert.equal counter, 0
-      a.off 'ev1', fn
+      a.on "ev1", fn = ()->counter++
+      a.off "ev1", fn
+      a.dispatch "ev1"
+      assert.strictEqual counter, 0
+      a.off "ev1", fn
       return
     
-    it 'off array', ()->
+    it "off array", ()->
       class A
         event_mixin @
         constructor:()->
           event_mixin_constructor @
       a = new A
       counter = 0
-      a.on 'ev1', fn = ()->counter++
-      a.off ['ev1'], fn
-      a.dispatch 'ev1'
-      assert.equal counter, 0
+      a.on "ev1", fn = ()->counter++
+      a.off ["ev1"], fn
+      a.dispatch "ev1"
+      assert.strictEqual counter, 0
       return
     
-    it 'off not exist event warn', ()->
+    it "off not exist event warn", ()->
       class A
         event_mixin @
         constructor:()->
           event_mixin_constructor @
       a = new A
       counter = 0
-      a.off 'ev1', ()->
+      a.off "ev1", ()->
       return
   
-  describe 'once', ()->
-    it 'once dispatch', ()->
+  describe "once", ()->
+    it "once dispatch", ()->
       class A
         event_mixin @
         constructor:()->
           event_mixin_constructor @
       a = new A
       counter = 0
-      a.once 'ev1', ()->counter++
-      a.dispatch 'ev1'
-      a.dispatch 'ev1'
+      found_event = null
+      a.once "ev1", (event)->
+        found_event = event
+        counter++
+      a.dispatch "ev1", "hello"
+      a.dispatch "ev1", "hello"
       
-      assert.equal counter, 1
+      assert.strictEqual counter, 1
+      assert.strictEqual found_event, "hello"
       return
   
-  describe 'delete', ()->
-    it 'delete', ()->
+  describe "delete", ()->
+    it "delete", ()->
       class A
         event_mixin @
         constructor:()->
           event_mixin_constructor @
       a = new A
-      a.on 'ev1', ()->throw new Error "WTF"
+      a.on "ev1", ()->throw new Error "WTF"
       a.delete()
-      a.dispatch 'ev1'
+      a.dispatch "ev1"
       return
     
-    it 'delete handler', ()->
+    it "delete handler", ()->
       class A
         event_mixin @
         constructor:()->
           event_mixin_constructor @
       a = new A
       counter = 0
-      a.on 'delete', ()->counter++
+      a.on "delete", ()->counter++
       a.delete()
-      assert.equal counter, 1
+      assert.strictEqual counter, 1
       return
     
-    it 'delete protection', ()->
+    it "delete protection", ()->
       class A
         event_mixin @
         constructor:()->
@@ -219,10 +227,10 @@ describe 'index section', ()->
       a = new A
       counter = 0
       fn2 = null
-      a.on 'ev1', ()->@off 'ev1', fn2
-      a.on 'ev1', fn2=()->counter++
-      a.dispatch 'ev1'
+      a.on "ev1", ()->@off "ev1", fn2
+      a.on "ev1", fn2=()->counter++
+      a.dispatch "ev1"
       
-      assert.equal counter, 0
+      assert.strictEqual counter, 0
       return
   
