@@ -2,6 +2,7 @@ require "fy"
 window = global
 window.event_mixin_constructor = (_t)->
   _t.$event_hash = {}
+  _t.$event_once_hash = {}
   _t.on "delete", ()->
     for k,v of _t.$event_hash
       continue if k == "delete" # т.к. нормально не сотрет
@@ -16,12 +17,14 @@ window.event_mixin = (_t)->
     @dispatch "delete"
     return
   _t.prototype.once = (event_name, cb)->
-    need_remove = (event)=>
-      @off event_name, need_remove
-      cb event
-      return
-    @on event_name, need_remove
-    return
+    if event_name instanceof Array
+      for v in event_name
+        @once v, cb
+      return @
+    @on event_name, cb
+    @$event_once_hash[event_name] ?= []
+    @$event_once_hash[event_name].push cb
+    @
   
   _t.prototype.ensure_on = (event_name, cb)->
     if event_name instanceof Array
@@ -57,6 +60,8 @@ window.event_mixin = (_t)->
     idx = list.idx cb
     if idx >= 0
       list[idx] = null
+    # а тут можно
+    @$event_once_hash[event_name]?.fast_remove cb
     return
   
   _t.prototype.dispatch = (event_name, hash={})->
@@ -71,6 +76,10 @@ window.event_mixin = (_t)->
         while 0 < idx = list.idx null
           list.remove_idx idx
         @$delete_state = false
+      if @$event_once_hash[event_name]
+        for remove_cb in @$event_once_hash[event_name]
+          list.fast_remove remove_cb
+        @$event_once_hash[event_name].clear()
     return
 
     

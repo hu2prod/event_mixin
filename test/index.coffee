@@ -194,6 +194,23 @@ describe "index section", ()->
       assert.strictEqual counter, 1
       assert.strictEqual found_event, "hello"
       return
+    
+    it "once off + dispatch", ()->
+      class A
+        event_mixin @
+        constructor:()->
+          event_mixin_constructor @
+      a = new A
+      counter = 0
+      found_event = null
+      a.once "ev1", handler = (event)->
+        found_event = event
+        counter++
+      a.off "ev1", handler
+      a.dispatch "ev1", "hello"
+      
+      assert.strictEqual counter, 0
+      return
   
   describe "delete", ()->
     it "delete", ()->
