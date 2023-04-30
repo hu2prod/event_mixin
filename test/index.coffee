@@ -186,9 +186,11 @@ describe "index section", ()->
       for i in [0 ... 100]
         a.on "ev1", fn = ()->counter++
         a.off "ev1", fn
+      
+      
+      assert.strictEqual a.$event_hash["ev1"].length, 0
       a.dispatch "ev1"
       assert.strictEqual counter, 0
-      assert.strictEqual a.$event_hash["ev1"].length, 0
       return
     
     it "repeat on off mem leak2", ()->
