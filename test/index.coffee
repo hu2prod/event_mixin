@@ -175,6 +175,67 @@ describe "index section", ()->
       counter = 0
       a.off "ev1", ()->
       return
+    
+    it "repeat on off mem leak", ()->
+      class A
+        event_mixin @
+        constructor:()->
+          event_mixin_constructor @
+      a = new A
+      counter = 0
+      for i in [0 ... 100]
+        a.on "ev1", fn = ()->counter++
+        a.off "ev1", fn
+      a.dispatch "ev1"
+      assert.strictEqual counter, 0
+      assert.strictEqual a.$event_hash["ev1"].length, 0
+      return
+    
+    it "repeat on off mem leak2", ()->
+      class A
+        event_mixin @
+        constructor:()->
+          event_mixin_constructor @
+      a = new A
+      counter = 0
+      fn_list = []
+      for i in [0 ... 100]
+        a.on "ev1", fn = ()->
+          counter++
+          for fn2 in fn_list
+            a.off "ev1", fn2
+          
+        fn_list.push fn
+      
+      a.dispatch "ev1"
+      assert.strictEqual counter, 1
+      assert.strictEqual a.$event_hash["ev1"].length, 0
+      return
+      return
+    
+    it "repeat on off mem leak3", ()->
+      class A
+        event_mixin @
+        constructor:()->
+          event_mixin_constructor @
+      a = new A
+      counter = 0
+      fn_list = []
+      for i in [0 ... 100]
+        a.on "ev1", fn = ()->
+          counter++
+          for fn2 in fn_list
+            a.off "ev1", fn2
+          
+        fn_list.push fn
+      
+      fn_list.pop()
+      a.dispatch "ev1"
+      # сработает первый и последний
+      assert.strictEqual counter, 2
+      # останется только последний
+      assert.strictEqual a.$event_hash["ev1"].length, 1
+      return
   
   describe "once", ()->
     it "once dispatch", ()->

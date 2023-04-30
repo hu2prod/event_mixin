@@ -65,21 +65,46 @@ window.event_mixin = (_t)->
     return
   
   _t.prototype.dispatch = (event_name, hash={})->
-    if @$event_hash[event_name]
-      for cb in list = @$event_hash[event_name]
-        continue if cb == null
-        try
-          cb.call @, hash
-        catch e
-          perr e
-      if @$delete_state
-        while 0 < idx = list.idx null
-          list.remove_idx idx
-        @$delete_state = false
-      if @$event_once_hash[event_name]
-        for remove_cb in @$event_once_hash[event_name]
-          list.fast_remove remove_cb
-        @$event_once_hash[event_name].clear()
+    return if !list = @$event_hash[event_name]
+    
+    need_clear_null = false
+    for cb in list
+      if cb == null
+        need_clear_null = true
+        continue
+      try
+        cb.call @, hash
+      catch e
+        perr e
+    
+    if @$delete_state
+      while 0 < idx = list.idx null
+        list.remove_idx idx
+      @$delete_state = false
+    if @$event_once_hash[event_name]
+      for remove_cb in @$event_once_hash[event_name]
+        list.fast_remove remove_cb
+      @$event_once_hash[event_name].clear()
+    
+    if need_clear_null
+      # mass fast_remove optimized
+      idx = 0
+      len = list.length
+      while idx < len
+        curr = list[idx]
+        if curr?
+          idx++
+          continue
+        
+        last = null
+        while idx < len
+          len--
+          last = list.pop()
+          if last?
+            list[idx] = last
+            idx++
+            break
+    
     return
 
     
