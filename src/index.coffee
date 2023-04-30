@@ -97,7 +97,8 @@ window.event_mixin = (_t)->
       @$event_once_hash[event_name].clear()
     
     if need_clear_null
-      # mass remove optimized
+      # mass remove semi-optimized
+      # still o(N^2) worst case but not O(N^3) with list.remove null
       idx = 0
       len = list.length
       while idx < len
