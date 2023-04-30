@@ -66,7 +66,7 @@ window.event_mixin = (_t)->
       if idx >= 0
         list[idx] = null
     else
-      list.remove_idx cb
+      list.remove cb
     # а тут можно
     @$event_once_hash[event_name]?.fast_remove cb
     return

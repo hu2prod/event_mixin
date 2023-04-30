@@ -187,10 +187,33 @@ describe "index section", ()->
         a.on "ev1", fn = ()->counter++
         a.off "ev1", fn
       
-      
       assert.strictEqual a.$event_hash["ev1"].length, 0
       a.dispatch "ev1"
       assert.strictEqual counter, 0
+      return
+    
+    it "repeat on off mem leak1.5", ()->
+      class A
+        event_mixin @
+        constructor:()->
+          event_mixin_constructor @
+      a = new A
+      counter = 0
+      counter2 = 0
+      a.on "ev1", fn = ()->counter2++
+      
+      fn_list = []
+      for i in [0 ... 100]
+        a.on "ev1", fn = ()->counter++
+        fn_list.push fn
+      
+      for fn in fn_list
+        a.off "ev1", fn
+      
+      assert.strictEqual a.$event_hash["ev1"].length, 1
+      a.dispatch "ev1"
+      assert.strictEqual counter, 0
+      assert.strictEqual counter2, 1
       return
     
     it "repeat on off mem leak2", ()->
