@@ -74,6 +74,10 @@ window.event_mixin = (_t)->
   _t.prototype.dispatch = (event_name, hash={})->
     return if !list = @$event_hash[event_name]
     
+    limit_once = 0
+    if once_list = @$event_once_hash[event_name]
+      limit_once = once_list.length
+    
     @$event_dispatch_hash[event_name] = true
     need_clear_null = false
     for cb in list
@@ -91,10 +95,14 @@ window.event_mixin = (_t)->
       while 0 < idx = list.idx null
         list.remove_idx idx
       @$delete_state = false
-    if @$event_once_hash[event_name]
-      for remove_cb in @$event_once_hash[event_name]
+    if once_list
+      for idx in [0 ... limit_once]
+        remove_cb = once_list[idx]
         list.fast_remove remove_cb
-      @$event_once_hash[event_name].clear()
+        # in-place slice
+        once_list[idx] = once_list[idx+limit_once]
+      
+      once_list.length = once_list.length - limit_once
     
     if need_clear_null
       # mass remove semi-optimized
